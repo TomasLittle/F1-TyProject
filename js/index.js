@@ -1,4 +1,7 @@
 async function onLoad() {
+  var btnDrivers = document.getElementById('btnDrivers');
+  btnDrivers.disabled = true;
+
   const tracks = await this.fetchTracks();
   populateDdlTracks(tracks);
 }
@@ -30,7 +33,7 @@ async function populateDdlDrivers(trackName, session_key) {
   console.log(trackName, session_key);
   
   var drivers = await this.fetchDrivers(session_key);
-  var ddlDrivers = getElementById('ddlDrivers');
+  var ddlDrivers = document.getElementById('ddlDrivers');
 
   drivers.forEach(driver => {
     var listItem = document.createElement('li');    
@@ -43,6 +46,9 @@ async function populateDdlDrivers(trackName, session_key) {
 
     ddlDrivers.appendChild(listItem);
   });
+
+  var btnDrivers = document.getElementById('btnDrivers');
+  btnDrivers.disabled = false;
 }
 
 async function fetchDrivers(session_key) {
