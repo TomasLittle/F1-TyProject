@@ -1,58 +1,11 @@
-async function onLoad() {
-  var btnDrivers = document.getElementById('btnDrivers');
-  btnDrivers.disabled = true;
+async function createDriverCards() {
+  var latestDrivers = await fetchLatestDrivers();
 
-  const tracks = await this.fetchTracks();
-  populateDdlTracks(tracks);
+  latestDrivers.forEach(generateDriverCardHtml);
 }
 
-function populateDdlTracks(tracks) {
-  var ddlTracks = document.getElementById('ddlTracks');
-  
-  tracks.forEach(track => {
-    var listItem = document.createElement('li');    
-
-    listItem.classList.add("dropdown-item");
-    listItem.innerText = track.circuit_short_name;
-    listItem.onclick = () => this.populateDdlDrivers(track.circuit_short_name, track.session_key);
-
-    ddlTracks.appendChild(listItem);
-  });
-}
-
-async function fetchTracks() {
-  return fetch('https://api.openf1.org/v1/sessions?session_name=Race&year=2024')
-    .then(response => response.json())
-    .then(jsonContent => {
-      console.log(jsonContent);
-      return jsonContent;
-    });        
-}
-
-async function populateDdlDrivers(trackName, session_key) {
-  console.log(trackName, session_key);
-  
-  var drivers = await this.fetchDrivers(session_key);
-  var ddlDrivers = document.getElementById('ddlDrivers');
-
-  drivers.forEach(driver => {
-    var listItem = document.createElement('li');    
-
-    listItem.classList.add("dropdown-item");
-    listItem.innerText = driver.first_name + " " + driver.last_name;
-
-    //These on click events are not ideal.
-    listItem.onclick = () => this.generateResults(driver.driver_number, session_key);
-
-    ddlDrivers.appendChild(listItem);
-  });
-
-  var btnDrivers = document.getElementById('btnDrivers');
-  btnDrivers.disabled = false;
-}
-
-async function fetchDrivers(session_key) {
-  return fetch('https://api.openf1.org/v1/drivers?session_key=' + session_key)
+async function fetchLatestDrivers() {
+  return fetch('https://api.openf1.org/v1/drivers?meeting_key=latest&session_key=latest')
     .then(response => response.json())
     .then(jsonContent => {
       console.log(jsonContent);
@@ -60,36 +13,23 @@ async function fetchDrivers(session_key) {
     });
 }
 
-async function generateResults(driver_number, session_key) {
-  var fastestLap = getFastestLap(driver_number, session_key);
+function generateDriverCardHtml(driver) {
+  var divDrivers = document.getElementById("divDrivers");
+  var divCardElement = document.createElement("div");
 
-  var driverInfo = fetchDriverInfo(driver_number, session_key);
-  var trackInfo = fetchTrackInfo(session_key);
+  divCardElement.setAttribute("class", "col cardStyling")
+  divCardElement.innerHTML = `
+    <div class="card" style="width: 11rem; background-color: transparent; border-color: transparent">
+      <img src="${driver.headshot_url}" class="card-img-top">
+      <div class="card-body" style="background-color: white; opacity: 90%">
+        <h7 class="card-title">${driver.full_name}</h7>      
+        <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+  `;
 
-  createHtml(driverInfo, trackInfo, fastestLap);
+  divDrivers.appendChild(divCardElement);
+
 }
 
-async function getFastestLap(driver_number, session_key) {
-  const laps = fetchFastestLap(driver_number, session_key)
 
-  var fastestLap = null;
-
-  laps.forEach(lap => {
-    if (lap.lap_duration < fastestLap) {
-      fastestLap = lap.lap_duration;
-    } else if (fastestLap == null) {
-      fastestLap = lap.lap_duration;
-    }
-  });
-
-  return fastestLap;
-}
-
-async function fetchFastestLap(driver_number, session_key) {
-  return await fetch('https://api.openf1.org/v1/drivers?driver_number=' + driver_number + '&session_key=' + session_key)
-    .then(response => response.json())
-    .then(jsonContent => {
-      console.log(jsonContent);
-      return jsonContent;
-    });
-}

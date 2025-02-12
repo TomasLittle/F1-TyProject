@@ -1,10 +1,21 @@
-.center {
-    text-align: center;
+body {
+    background-image: url(../img/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-.center-button {
-    padding-top: 3%;
-    padding-left: 25%;
-    padding-right: 25%;
+h1,h4 {
+    color: white;
+}
+
+.driversHeader {
+    text-align: left;    
+}
+
+.cardStyling {
     margin-bottom: 2%;
+    /* background-color: transparent; */
+}
+
+.cardOpacity {
 }
